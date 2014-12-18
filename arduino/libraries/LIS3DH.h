@@ -1,5 +1,5 @@
 /*
-  LISH3D_core_spi.h - Library for interacting with the STMicro LIS3DH
+  LIS3DH_core_spi.h - Library for interacting with the STMicro LIS3DH
                       MEMS digital output motion sensor, ultra low-power
                       high performance 3-axes “nano” accelerometer.
   Created by Craig Wm. Versek, 2014-12-04
@@ -10,9 +10,11 @@
 #include <Arduino.h>
 
 #define DEFAULT_STARTUP_DELAY_MS 500
-#define VREF_MAX 5.46 /*Vdd_MAX - 0.04 V */
+#define VREF_MAX 5.46
+///*Vdd_MAX - 0.04 V */
 #define RES24BIT 16777216
-#define ADDR_MAX 32   /* 001r rrrr 2**5 possible*/
+//#define ADDR_MAX 32
+///* 001r rrrr 2**5 possible*/
 #define RDATA_NUM_BYTES 27
 
 /*******************************************************************************
@@ -22,18 +24,18 @@
 class LIS3DH_CoreSPIClass {
 public:
   LIS3DH_CoreSPIClass(const int slaveSelectLowPin,
-                      const int dataReadyLowPin,
+                      const int dataReadyLowPin
                      );
   //Configuration methods
   void begin(int startup_delay_ms = DEFAULT_STARTUP_DELAY_MS);
   //Functionality method
-  int startConversions();
-  int stopConversions();
-  int readDataRaw(byte *data_array);
-  void attach_dataReadyLow_interrupt(void (*function)(void));
-  void detach_dataReadyLow_interrupt();
+//  int startConversions();
+//  int stopConversions();
+//  int readDataRaw(byte *data_array);
+//  void attach_dataReadyLow_interrupt(void (*function)(void));
+//  void detach_dataReadyLow_interrupt();
   byte _readRegister (int addr);
-  int  _writeRegister(int addr, byte value);
+//  int  _writeRegister(int addr, byte value);
 private:
   //Attributes
   int _slaveSelectLowPin;
@@ -47,23 +49,6 @@ private:
 namespace LIS3DH {
 #endif
 const int ADDR_MAX = 0x3D;
-//    enum spi_command {
-//        // system commands
-////        WAKEUP = 0x02,
-////        STANDBY = 0x04,
-////        RESET = 0x06,
-////        START = 0x08,
-////        STOP = 0x0a,
-
-////        // read commands
-////        RDATAC = 0x10,
-////        SDATAC = 0x11,
-////        RDATA = 0x12,
-
-////        // register commands
-////        RREG = 0x20,
-////        WREG = 0x40
-//    };
 
 //    enum reg {
 //        // device settings

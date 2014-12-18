@@ -1,16 +1,17 @@
 /*
-  LISH3D_core_spi.h - Library for interacting with the STMicro LIS3DH
+  LIS3DH_core_spi.h - Library for interacting with the STMicro LIS3DH
                       MEMS digital output motion sensor, ultra low-power
                       high performance 3-axes “nano” accelerometer.
   Created by Craig Wm. Versek, 2014-12-04
  */
 
 #include <SPI.h>
-#include "LISH3D_core_spi.h"
+#include "LIS3DH.h"
 
 //configure the accelerometer chip
-LIS3DH_CoreSPIClass acc(16,   //slaveSelectLowPin
-                        15,   //dataReadyLowPin
+
+LIS3DH_CoreSPIClass acc(6,   //slaveSelectLowPin
+                        15    //dataReadyLowPin
                        );
 
 void setup() {
@@ -18,15 +19,14 @@ void setup() {
   //start up the SPI bus
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE1);
+  SPI.setDataMode(SPI_MODE0);
   //SPI.setClockDivider(21); //84MHz clock /21 = 4 MHz
-  //SPI.setClockDivider(SPI_CLOCK_DIV8);  //FIXME SPI_CLOCK_DIV these names are not defined anymore in Arduino 1.5.4
+  SPI.setClockDivider(SPI_CLOCK_DIV8);  //FIXME SPI_CLOCK_DIV these names are not defined anymore in Arduino 1.5.4
   //start controlling the voltage supply
   acc.begin();
   delay(1000);
   
-  
-  
+
 }
 
 void loop() {
