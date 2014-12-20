@@ -4,8 +4,8 @@
 #include <SPI.h>
 #include <SerialCommand.h>
 #include <Time.h>
-#include "LIS3DH_core_spi.h"
-#include "CircularBuffer.h"
+#include "LIS3DH.h"
+#include "CircularBuffer2.h"
 
 #define SERIAL_BAUDRATE 115200
 #define INFO_SIZE sizeof(unsigned long)
@@ -34,7 +34,8 @@ SerialCommand sCmd_USB(Serial, MAX_SERIAL_COMMANDS);         // (Stream, int max
 SerialCommand sCmd_BT(BluetoothModem, MAX_SERIAL_COMMANDS);  // (Stream, int maxCommands)
 
 //configure the ADS chip
-LIS3DH_CoreSPIClass acc(16,   //slaveSelectLowPin
+LIS3DH_CoreSPIClass acc(6,   //slaveSelectLowPin
+                        15     //dataReadyLowPin
                        );
                            
 // Circular overwriting buffer for samples
@@ -52,13 +53,6 @@ void setup() {
   //----------------------------------------------------------------------------
   //configure signal pins
   pinMode(btRTS_pin, INPUT);
-  pinMode(enableAPWR_pin, OUTPUT);
-  // signal that setup has started
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(500);                   // wait for a second
-  digitalWrite(ledPin, LOW);    // turn the LED off by making the voltage LOW
-  delay(500);
   // Setup callbacks for SerialCommand commands
   // over USB interface
   sCmd_USB.addCommand("LED.ON", LED_ON_command);       //set the system to acquire and push data in default test mode at 250 SPS
@@ -70,9 +64,9 @@ void setup() {
   sCmd_USB.addCommand("SER.BUFSZ", SER_BUFSZ_command); //get the number of records in the buffer
   sCmd_USB.addCommand("SER.RDBUF", SER_RDBUF_command); //dump the data buffer over the serial link
   sCmd_USB.addCommand("SER.FLBUF", SER_FLBUF_command); //flush contents of circular buffer
-  sCmd_USB.addCommand("ACC.START", ACC_START_command); //start conversions
-  sCmd_USB.addCommand("ACC.STOP",  ACC_STOP_command);   //stop conversions
-  sCmd_USB.addCommand("ACC.RDATA_RAW", ACC_RDATA_RAW_command); //reads sample data as sends as binary
+  //sCmd_USB.addCommand("ACC.START", ACC_START_command); //start conversions
+  //sCmd_USB.addCommand("ACC.STOP",  ACC_STOP_command);   //stop conversions
+  //sCmd_USB.addCommand("ACC.RDATA_RAW", ACC_RDATA_RAW_command); //reads sample data as sends as binary
   sCmd_USB.addCommand("ACC.RREG" , ACC_RREG_command);  //writes hardware register on the ADS129x
   sCmd_USB.addCommand("ACC.WREG" , ACC_WREG_command);  //reads a hardware register on the ADS129x
   sCmd_USB.setDefaultHandler(unrecognizedCommand);
@@ -90,7 +84,7 @@ void setup() {
   // initialize the LIS3DH chip
   // first enable the analog power supply (5.0V) on controller board
   // DO NOT toggle ledPin after this point since it will interfere with SPI initialization
-  
+   
   
   //wait for ADS system to come on line for 1 sec 
   delay(1000);
@@ -100,8 +94,10 @@ void setup() {
   //start up the SPI bus, note CANNOT ledPin for blinking beyond here
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE1);
-  SPI.setClockDivider(21); //84MHz clock /21 = 4 MHz
+  SPI.setDataMode(SPI_MODE3);
+  SPI.setClockDivider(24); //96MHz clock /24 = 4 MHz
+  
+  digitalWrite(SCK, HIGH);                    //assure that clock starts
   
   //lastly configure ADS system
   acc.begin();
@@ -259,8 +255,8 @@ void handle_dataReadyLow_interrupt(){
   //Serial.print(F("# dataReadyLow ISR\n"));
   //read raw data into record
   acq_t = micros();
-  acc.readDataRaw(rawDataRecord);
-  buffer_raw_data(rawDataRecord, &acq_t);
+  //acc.readDataRaw(rawDataRecord);
+  //buffer_raw_data(rawDataRecord, &acq_t);
 }
 
 /******************************************************************************/
@@ -427,8 +423,8 @@ void ACC_START_command(SerialCommand this_scmd) {
     this_scmd.print(F("### Error: ACC.START requires no arguments\n"));
   }
   else{
-    acc.attach_dataReadyLow_interrupt(handle_dataReadyLow_interrupt);
-    acc.startConversions();
+    //acc.attach_dataReadyLow_interrupt(handle_dataReadyLow_interrupt);
+    //acc.startConversions();
   }
 }
 
@@ -439,8 +435,8 @@ void ACC_STOP_command(SerialCommand this_scmd) {
   }
   else{
     noInterrupts();  //prevent possible race condition
-    acc.stopConversions();
-    acc.detach_dataReadyLow_interrupt();
+    //acc.stopConversions();
+    //acc.detach_dataReadyLow_interrupt();
     interrupts();
   }
 }
@@ -452,11 +448,11 @@ void ACC_RDATA_RAW_command(SerialCommand this_scmd) {
   }
   else{
     unsigned long t1, t2, acq_t;
-    t1 = micros();
-    acc.readDataRaw(rawDataRecord);
-    t2 = micros();
-    acq_t = (t1 + t2)/2;
-    send_raw_data(rawDataRecord, acq_t, this_scmd);
+/*    t1 = micros();*/
+/*    acc.readDataRaw(rawDataRecord);*/
+/*    t2 = micros();*/
+/*    acq_t = (t1 + t2)/2;*/
+/*    send_raw_data(rawDataRecord, acq_t, this_scmd);*/
   }
 }
 
@@ -490,7 +486,7 @@ void ACC_WREG_command(SerialCommand this_scmd) {
     }
     else{
         value = atoi(arg);
-        acc._writeRegister(addr, value);
+        //acc._writeRegister(addr, value);
     }
   }
 }
