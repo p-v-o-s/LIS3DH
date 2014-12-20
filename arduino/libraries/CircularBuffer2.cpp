@@ -4,7 +4,7 @@
 
 */
 #include <Arduino.h>
-#include "CircularBuffer.h"
+#include "CircularBuffer2.h"
 
 CircularBuffer::CircularBuffer(size_t capacity)
   : beg_index_(0)
