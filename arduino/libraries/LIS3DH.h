@@ -4,8 +4,8 @@
                       high performance 3-axes “nano” accelerometer.
   Created by Craig Wm. Versek, 2014-12-04
  */
-#ifndef _LISH3D_core_spi_H_INCLUDED
-#define _LISH3D_core_spi_H_INCLUDED
+#ifndef _LISH3D_H_INCLUDED
+#define _LISH3D_H_INCLUDED
 
 #include <Arduino.h>
 
@@ -35,7 +35,7 @@ public:
 //  void attach_dataReadyLow_interrupt(void (*function)(void));
 //  void detach_dataReadyLow_interrupt();
   byte _readRegister (int addr);
-//  int  _writeRegister(int addr, byte value);
+  int  _writeRegister(int addr, byte value);
 private:
   //Attributes
   int _slaveSelectLowPin;
@@ -45,11 +45,14 @@ private:
 /*******************************************************************************
   LIS3DH NAMESPACE DEFINITIONS
 *******************************************************************************/
+#define LIS3DH_RDATA_NUM_BYTES 6
+#define LIS3DH_SPI_CLOCK_SPEED 8000000
 #ifdef __cplusplus
 namespace LIS3DH {
 #endif
 const int ADDR_MAX = 0x3D;
-
+const byte ADDR_MASK = 0b00011111;
+//const int RDATA_NUM_BYTES = 6;
 //    enum reg {
 //        // device settings
 //        ID = 0x00,
@@ -119,4 +122,4 @@ const int ADDR_MAX = 0x3D;
 #endif /* namespace ADS129x */
 
 
-#endif /* _LISH3D_core_spi_H_INCLUDED */
+#endif /* _LISH3D_H_INCLUDED */

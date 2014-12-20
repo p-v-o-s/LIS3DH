@@ -22,6 +22,10 @@ void LIS3DH_CoreSPIClass::begin(int startup_delay_ms) {
   pinMode(_slaveSelectLowPin, OUTPUT);
   pinMode(_dataReadyLowPin, INPUT);
   digitalWrite(_slaveSelectLowPin, HIGH);  //comm. off
+  //wake up SPI interface, by sending null byte
+  //digitalWrite(_slaveSelectLowPin, LOW);   //comm. off
+  //SPI.transfer(0x00);
+  //digitalWrite(_slaveSelectLowPin, HIGH);  //comm. off
 }
 
 //void LIS3DH_CoreSPIClass::attach_dataReadyLow_interrupt(void (*function)(void)){
@@ -34,30 +38,39 @@ void LIS3DH_CoreSPIClass::begin(int startup_delay_ms) {
 
 byte LIS3DH_CoreSPIClass::_readRegister(int addr) {
   byte opcode, data;
-  opcode = 0b10000000 | (addr & 0b00111111);  //bit0 = 1 -> READ, bit1 = 0 do not increment address
-  digitalWrite(_slaveSelectLowPin, LOW);  //set chip as listener
-  SPI.transfer(opcode);                   //send command
-  delayMicroseconds(5);
-  data = SPI.transfer(0);                 //read back response (sending null byte)
-  delayMicroseconds(1);
-  digitalWrite(_slaveSelectLowPin, HIGH); //release chip select
+  opcode = 0b10000000 | (addr & LIS3DH::ADDR_MASK);  //bit0 = 1 -> READ, bit1 = 0 do not increment address
+#ifdef SPI_HAS_TRANSACTION
+  //gain control of SPI bus
+  SPI.beginTransaction(SPISettings(LIS3DH_SPI_CLOCK_SPEED, MSBFIRST, SPI_MODE3));
+  SPI.transfer(0x00);                         //FIXME issue transfer with no slave select to init clock polarity, is this needed for SPI_DATA_MODE 2 & 3
+#endif
+  digitalWrite(_slaveSelectLowPin, LOW);      //set chip as listener
+  SPI.transfer(opcode);                       //send command
+  data = SPI.transfer(0x00);                  //read back response (sending null byte)
+  digitalWrite(_slaveSelectLowPin, HIGH);     //release chip select
+#ifdef SPI_HAS_TRANSACTION
+  SPI.endTransaction();                       //release the SPI bus
+#endif
   return data;
 }
 
 
-//int LIS3DH_CoreSPIClass::_writeRegister(int addr, byte value) {
-//  if(addr > 0 && addr <= ADDR_MAX){
-//    byte opcode1, opcode2;
-//    opcode1 = LIS3DH::WREG | (addr &  0b00011111);
-//    opcode2 = 0b00000000;// | (n    & 0b00011111); //FIXME we only ever need to read 1 byte at a time, right?
-//    digitalWrite(_slaveSelectLowPin, LOW);
-//    SPI.transfer(opcode1);
-//    delayMicroseconds(5);
-//    SPI.transfer(opcode2);  // number of registers to be read/written – 1
-//    SPI.transfer(value);    // send the data
-//    delayMicroseconds(1);
-//    digitalWrite(_slaveSelectLowPin, HIGH);
-//    return 0;
-//  }
-//  else{ return -1; }          //error, out of range
-//}
+int LIS3DH_CoreSPIClass::_writeRegister(int addr, byte value) {
+  if(addr > 0 && addr <= LIS3DH::ADDR_MAX){
+    byte opcode;
+    opcode = addr &  LIS3DH::ADDR_MASK;             //bit0 = 1 -> READ, bit1 = 0 do not increment address
+#ifdef SPI_HAS_TRANSACTION
+    //gain control of SPI bus
+    SPI.beginTransaction(SPISettings(LIS3DH_SPI_CLOCK_SPEED, MSBFIRST, SPI_MODE3));
+    SPI.transfer(0x00);                         //FIXME issue transfer with no slave select to init clock polarity, is this needed for SPI_DATA_MODE 2 & 3
+#endif
+    digitalWrite(_slaveSelectLowPin, LOW);
+    SPI.transfer(opcode);
+    digitalWrite(_slaveSelectLowPin, HIGH);
+#ifdef SPI_HAS_TRANSACTION
+    SPI.endTransaction();                       //release the SPI bus
+#endif
+    return 0;
+  }
+  else{ return -1; }          //error, out of range
+}
