@@ -58,7 +58,7 @@ byte LIS3DH_CoreSPIClass::_readRegister(int addr) {
 int LIS3DH_CoreSPIClass::_writeRegister(int addr, byte value) {
   if(addr > 0 && addr <= LIS3DH::ADDR_MAX){
     byte opcode;
-    opcode = addr &  LIS3DH::ADDR_MASK;             //bit0 = 1 -> READ, bit1 = 0 do not increment address
+    opcode = addr &  LIS3DH::ADDR_MASK;         //bit0 = 0 -> WRITE, bit1 = 0 do not increment address
 #ifdef SPI_HAS_TRANSACTION
     //gain control of SPI bus
     SPI.beginTransaction(SPISettings(LIS3DH_SPI_CLOCK_SPEED, MSBFIRST, SPI_MODE3));
@@ -66,6 +66,7 @@ int LIS3DH_CoreSPIClass::_writeRegister(int addr, byte value) {
 #endif
     digitalWrite(_slaveSelectLowPin, LOW);
     SPI.transfer(opcode);
+    SPI.transfer(value);
     digitalWrite(_slaveSelectLowPin, HIGH);
 #ifdef SPI_HAS_TRANSACTION
     SPI.endTransaction();                       //release the SPI bus
