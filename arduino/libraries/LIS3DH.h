@@ -53,44 +53,28 @@ namespace LIS3DH {
 const int ADDR_MAX = 0x3D;
 const byte ADDR_MASK = 0b00011111;
 //const int RDATA_NUM_BYTES = 6;
-//    enum reg {
-//        // device settings
-//        ID = 0x00,
-
-//        // global settings
-//        CONFIG1 = 0x01,
-//        CONFIG2 = 0x02,
-//        CONFIG3 = 0x03,
-//        LOFF = 0x04,
-
-//        // channel specific settings
-//        CHnSET = 0x04,
-//        CH1SET = CHnSET + 1,
-//        CH2SET = CHnSET + 2,
-//        CH3SET = CHnSET + 3,
-//        CH4SET = CHnSET + 4,
-//        CH5SET = CHnSET + 5,
-//        CH6SET = CHnSET + 6,
-//        CH7SET = CHnSET + 7,
-//        CH8SET = CHnSET + 8,
-//        RLD_SENSP = 0x0d,
-//        RLD_SENSN = 0x0e,
-//        LOFF_SENSP = 0x0f,
-//        LOFF_SENSN = 0x10,
-//        LOFF_FLIP = 0x11,
-
-//        // lead off status
-//        LOFF_STATP = 0x12,
-//        LOFF_STATN = 0x13,
-
-//        // other
-//        GPIO = 0x14,
-//        PACE = 0x15,
-//        RESP = 0x16,
-//        CONFIG4 = 0x17,
-//        WCT1 = 0x18,
-//        WCT2 = 0x19
-//    };
+enum reg {
+    STATUS_REG_AUX = 0x07,
+    OUT_ADC1_L     = 0x08,
+    OUT_ADC1_H     = 0x09,
+    OUT_ADC2_L     = 0x0A,
+    OUT_ADC2_H     = 0x0B,
+    OUT_ADC3_L     = 0x0C,
+    OUT_ADC3_H     = 0x0D,
+    INT_COUNTER_REG = 0x0E,
+    WHO_AM_I       = 0x0F,
+    TEMP_CFG_REG = 0x1F,
+    CTRL_REG1 = 0x20,
+    CTRL_REG2 = 0x21,
+    CTRL_REG3 = 0x22,
+    CTRL_REG4 = 0x23,
+    CTRL_REG5 = 0x24,
+    CTRL_REG6 = 0x25,
+    REFERENCE = 0x26,
+    STATUS_REG2 = 0x27,
+    OUT_X_L = 0x28,
+    
+};
 
 //    enum ID_bits {
 //        DEV_ID7 = 0x80,
